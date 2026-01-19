@@ -1,0 +1,32 @@
+{
+  "name": "endoftime",
+  "version": "1.0.0",
+  "description": "A countdown to the end of 32-bit signed Unix time (2038-01-19 03:14:08 UTC), among others",
+  "keywords": [
+    "32-bit",
+    "unix",
+    "time",
+    "overflow"
+  ],
+  "homepage": "https://github.com/Not-A-Normal-Robot/EndOfTime#readme",
+  "bugs": {
+    "url": "https://github.com/Not-A-Normal-Robot/EndOfTime/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Not-A-Normal-Robot/EndOfTime.git"
+  },
+  "license": "GPL-3.0-or-later",
+  "author": "Not-A-Normal-Robot",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "watch": "nodemon --watch src --ext js,html ./scripts/build.js"
+  },
+  "devDependencies": {
+    "@minify-html/node": "^0.18.1",
+    "@types/node": "^25.0.9",
+    "google-closure-compiler": "^20260114.0.0",
+    "nodemon": "^3.1.11"
+  }
+}
