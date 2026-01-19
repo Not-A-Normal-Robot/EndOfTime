@@ -156,8 +156,8 @@ const displayMixed = (seconds) =>
     {
         const isSmallestUnit = unit === MIXED_UNITS[MIXED_UNITS.length - 1];
 
-        let quotient = remainder / unit.seconds;
-        remainder %= unit.seconds;
+        let quotient = Math.floor(remainder / unit.seconds);
+        remainder -= quotient * unit.seconds;
 
         /** @type {HTMLElement} */
         let numEl;
