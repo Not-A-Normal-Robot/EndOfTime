@@ -36,6 +36,12 @@ const IDS = {
     UNSIGNED_SWITCH: "h",
 };
 
+/** @const @constant @readonly @private */
+const CLASS_NAMES = {
+    COUNTER_SPACE: "s",
+    COUNTER_GREYED: "g",
+}
+
 /**
  * @private
  * @const
@@ -90,9 +96,9 @@ const COUNTERS = [{
 }];
 
 /**
- * Converts a seconds amount to a displayed HTML.
+ * Converts a seconds amount to a list of elements.
  * @param {number} seconds
- * @returns {string} HTML
+ * @returns {HTMLElement[]}
  * @private @const @constant
  */
 const displaySeconds = (seconds) =>
@@ -100,6 +106,39 @@ const displaySeconds = (seconds) =>
     const numSecs = seconds.toFixed(3);
     const [int, frac] = numSecs.split('.', 2);
 
+    /** @type {HTMLElement[]} */
+    const elements = [];
+
+    for (let exponent = Math.max(int.length, MIN_DIGITS) - 1; exponent >= 0; exponent--)
+    {
+        const span = document.createElement("span");
+        if (exponent % 3 === 0 && exponent !== 0)
+        {
+            span.classList.add(CLASS_NAMES.COUNTER_SPACE);
+        }
+        if (exponent >= int.length)
+        {
+            span.classList.add(CLASS_NAMES.COUNTER_GREYED);
+            span.textContent = "0";
+        } else
+        {
+            const index = int.length - exponent - 1;
+            span.innerText = int[index] || "ERROR"; // TODO: REMOVE if working
+        }
+
+        elements.push(span);
+    }
+
+    const dot = document.createElement("span");
+    dot.classList.add("b");
+    dot.textContent = ".";
+    elements.push(dot);
+
+    const fracEl = document.createElement("small");
+    fracEl.textContent = frac;
+    elements.push(fracEl);
+
+    return elements;
 }
 
 /**
@@ -117,7 +156,8 @@ const processCounter = (now, counter) =>
             // TODO
         }
         default: {
-
+            counter.el_counter.innerHTML = "";
+            counter.el_counter.append(...displaySeconds(remaining / 1000))
         }
     }
 }
@@ -125,7 +165,15 @@ const processCounter = (now, counter) =>
 /** @private @const @constant */
 const tick = () =>
 {
-    let utcNow = Date.now();
+    let now = Date.now();
+
+    for (const counter of COUNTERS)
+    {
+        processCounter(now, counter);
+    }
+
+    EPOCH_SECS.innerHTML = "";
+    EPOCH_SECS.append(...displaySeconds(now / 1000));
 
     requestAnimationFrame(tick);
 }
