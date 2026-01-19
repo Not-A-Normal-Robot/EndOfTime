@@ -7,11 +7,52 @@
     <title>End of Time</title>
     <noscript>
         <style>
-            .hide-noscrept {
+            /* hide-noscript */
+            main {
                 display: none !important
             }
         </style>
     </noscript>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            gap: 2em;
+            text-align: center;
+            scrollbar-gutter: stable both-edges;
+        }
+
+        footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5em;
+        }
+
+        footer ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 1em;
+        }
+
+        @media (max-width: 576px) {
+            footer ul {
+                flex-direction: column;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
+        }
+
+        .u {
+            font: 700 1.5rem monospace;
+        }
+    </style>
 </head>
 
 <body>
@@ -26,11 +67,43 @@
     </header>
 
     <main>
-
+        <section>
+            <p>secs since epoch</p>
+            <p class="u" id="a">000000000.000</p>
+            <time id="b" datetime="1970-01-01T00:00:00.000Z">@ 1970-01-01T00:00:00.000Z</time>
+        </section>
+        <section>
+            <p>until signed 32-bit end:</p>
+            <p class="u" id="c">2147483647.000</p>
+            <p>
+                <span id="d">seconds</span>
+                <button type="button" id="e">change</button>
+            </p>
+            <time datetime="2038-01-19T03:14:08.000Z">@ 2038-01-09T03:14:08.000Z</time>
+        </section>
+        <section>
+            <p>until unsigned 32-bit end</p>
+            <p class="u" id="f">4294967295.000</p>
+            <p>
+                <span id="g">seconds</span>
+                <button type="button" id="h">change</button>
+            </p>
+            <time datetime="2106-02-07T06:28:16.000Z">@ 2106-02-07T06:28:16.000Z</time>
+        </section>
     </main>
 
     <footer>
-
+        <ul>
+            <li>
+                Made by <a rel="author" href="https://not-a-normal-robot.github.io/">NOT_A_ROBOT</a>
+            </li>
+            <li>
+                <a href="https://github.com/Not-A-Normal-Robot/EndOfTime">Source code</a>
+            </li>
+            <li>
+                Licensed under the <a rel="license external" href="https://www.gnu.org/licenses/gpl-3.0.html">GPLv3</a>
+            </li>
+        </ul>
     </footer>
 
     {{mainscript}}
