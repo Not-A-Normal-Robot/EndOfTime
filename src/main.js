@@ -179,12 +179,11 @@ const displayMixed = (seconds) =>
         numEl.textContent = quotient.toFixed(0).padStart(unit.digits, "0");
 
         let unitEl = document_createElement("small");
-        unitEl.classList.add(CLASS_NAMES.COUNTER_SPACE);
         if (isSmallestUnit)
         {
             unitEl.classList.add(CLASS_NAMES.COUNTER_TINY);
         }
-        unitEl.textContent = unit.unitName;
+        unitEl.textContent = unit.unitName + " ";
 
         elements.push(numEl, unitEl);
     }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>End of Time</title>
+    <title>End of 32-bit Unix Time</title>
     <noscript>
         <style>
             /* hide-noscript */
@@ -14,12 +14,59 @@
         </style>
     </noscript>
     <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                color-scheme: dark;
+                color: white;
+                background: black;
+            }
+        }
+
         body {
             display: flex;
             flex-direction: column;
             gap: 2em;
             text-align: center;
             scrollbar-gutter: stable both-edges;
+            font: 400 1em system-ui;
+        }
+
+        button {
+            appearance: none;
+        }
+
+        main {
+            display: grid;
+            width: fit-content;
+            grid-template-columns: 1fr 1fr;
+            gap: 1em;
+            justify-content: center;
+            align-self: center;
+            font: 400 1.25em monospace;
+        }
+
+        main p {
+            margin: 0;
+        }
+
+        section:first-child {
+            grid-column: span 2;
+        }
+
+        section {
+            position: relative;
+            text-align: start;
+            justify-content: center;
+            border: 0.1em solid currentColor;
+            padding: 0.5em;
+        }
+
+        section button {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            opacity: 0;
+            cursor: pointer;
         }
 
         footer {
@@ -41,17 +88,20 @@
             footer ul {
                 flex-direction: column;
             }
-        }
 
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                transition: none !important;
+            main {
+                display: flex;
+                flex-direction: column;
             }
         }
 
-        /* unix time */
+        .u,
+        time {
+            font: 700 1em monospace;
+        }
+
         .u {
-            font: 700 1.5rem monospace;
+            font-size: 1.5rem;
         }
 
         /* half space */
@@ -83,8 +133,14 @@
 <body>
     <header>
         <h1>
-            Countdown to the End of Time
+            Countdown to the End of (Unix) Time
         </h1>
+        <p>
+            View the amount of time remaining until the 32-bit signed overflow!
+            <br>
+            For more information, see <a
+                href="https://en.wikipedia.org/wiki/Year_2038_problem">https://en.wikipedia.org/wiki/Year_2038_problem</a>
+        </p>
         <noscript>
             This page requires JavaScript in order to run, and your browser has
             JavaScript disabled.
@@ -102,7 +158,8 @@
             <p class="u" id="c">2147483647.000</p>
             <p>
                 <span id="d">seconds</span>
-                <button type="button" id="e">change</button>
+                <span>(click to change)</span>
+                <button type="button" id="e" aria-label="change format"></button>
             </p>
             <time datetime="2038-01-19T03:14:08.000Z">@ 2038-01-09T03:14:08.000Z</time>
         </section>
@@ -111,7 +168,8 @@
             <p class="u" id="f">4294967295.000</p>
             <p>
                 <span id="g">seconds</span>
-                <button type="button" id="h">change</button>
+                <span>(click to change)</span>
+                <button type="button" id="h" aria-label="change format"></button>
             </p>
             <time datetime="2106-02-07T06:28:16.000Z">@ 2106-02-07T06:28:16.000Z</time>
         </section>
