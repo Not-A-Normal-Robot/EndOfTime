@@ -59,7 +59,7 @@ const DECIMAL_SEPARATOR = ".";
  * @type {MixedUnit[]}
  */
 const MIXED_UNITS = [
-    { unitName: "y", seconds: 31536000, digits: 1 },
+    { unitName: "y", seconds: 365.2425 * 86400, digits: 1 },
     { unitName: "d", seconds: 86400, digits: 3 },
     { unitName: "h", seconds: 3600, digits: 2 },
     { unitName: "m", seconds: 60, digits: 2 },
