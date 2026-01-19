@@ -98,10 +98,11 @@ const COUNTERS = [{
 /**
  * Converts a seconds amount to a list of elements.
  * @param {number} seconds
+ * @param {boolean} invertGrey
  * @returns {HTMLElement[]}
  * @private @const @constant
  */
-const displaySeconds = (seconds) =>
+const displaySeconds = (seconds, invertGrey = false) =>
 {
     const numSecs = seconds.toFixed(3);
     const [int, frac] = numSecs.split('.', 2);
@@ -130,7 +131,10 @@ const displaySeconds = (seconds) =>
     }
 
     const dot = document.createElement("span");
-    dot.classList.add("b");
+    if (seconds % 1 > 0.5 !== invertGrey)
+    {
+        dot.classList.add(CLASS_NAMES.COUNTER_GREYED);
+    }
     dot.textContent = ".";
     elements.push(dot);
 
@@ -157,7 +161,7 @@ const processCounter = (now, counter) =>
         }
         default: {
             counter.el_counter.innerHTML = "";
-            counter.el_counter.append(...displaySeconds(remaining / 1000))
+            counter.el_counter.append(...displaySeconds(remaining / 1000, true))
         }
     }
 }
