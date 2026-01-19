@@ -12,11 +12,18 @@ const MIN_DIGITS = 10;
 
 /**
  * @typedef {Object} CounterWrapper A collection of variables for the counters.
- * @property {HTMLParagraphElement} el_counter The counter showing the current count.
- * @property {HTMLSpanElement} el_mode The span showing the current mode.
- * @property {HTMLButtonElement} el_switch The button to switch between modes.
- * @property {DisplayMode} display_mode The current mode the counter is in.
- * @property {number} count_target The end target to get subtracted from, in Unix milliseconds.
+ * @property {HTMLParagraphElement} elCounter The counter showing the current count.
+ * @property {HTMLSpanElement} elMode The span showing the current mode.
+ * @property {HTMLButtonElement} elSwitch The button to switch between modes.
+ * @property {DisplayMode} displayMode The current mode the counter is in.
+ * @property {number} countTarget The end target to get subtracted from, in Unix milliseconds.
+ */
+
+/**
+ * @typedef {Object} MixedUnit A unit used in the mixed display.
+ * @property {string} unitName What to display this unit as.
+ * @property {number} seconds How many seconds this unit is.
+ * @property {number} digits How many digits of this number should be displayed at minimum.
  */
 
 /**
@@ -38,12 +45,27 @@ const IDS = {
 
 /** @const @constant @readonly @private */
 const CLASS_NAMES = {
+    COUNTER_HALF_SPACE: "h",
     COUNTER_SPACE: "s",
     COUNTER_GREYED: "g",
+    COUNTER_TINY: "t",
 }
 
 /** @const @constant @readonly @private */
 const DECIMAL_SEPARATOR = ".";
+
+/**
+ * @const @constant @readonly @private
+ * @type {MixedUnit[]}
+ */
+const MIXED_UNITS = [
+    { unitName: "y", seconds: 31536000, digits: 1 },
+    { unitName: "d", seconds: 86400, digits: 3 },
+    { unitName: "h", seconds: 3600, digits: 2 },
+    { unitName: "m", seconds: 60, digits: 2 },
+    { unitName: "s", seconds: 1, digits: 2 },
+    { unitName: "ms", seconds: 0.001, digits: 3 },
+];
 
 /**
  * Wrapper for document that minifies better.
@@ -106,18 +128,69 @@ const [
  * @type {CounterWrapper[]}
  */
 const COUNTERS = [{
-    el_counter: SIGNED_COUNTER,
-    el_mode: SIGNED_MODE,
-    el_switch: SIGNED_SWITCH,
-    display_mode: DisplayMode.SECONDS,
-    count_target: 2147483647000,
+    elCounter: SIGNED_COUNTER,
+    elMode: SIGNED_MODE,
+    elSwitch: SIGNED_SWITCH,
+    displayMode: DisplayMode.SECONDS,
+    countTarget: 2147483647000,
 }, {
-    el_counter: UNSIGNED_COUNTER,
-    el_mode: UNSIGNED_MODE,
-    el_switch: UNSIGNED_SWITCH,
-    display_mode: DisplayMode.SECONDS,
-    count_target: 4294967295000,
+    elCounter: UNSIGNED_COUNTER,
+    elMode: UNSIGNED_MODE,
+    elSwitch: UNSIGNED_SWITCH,
+    displayMode: DisplayMode.SECONDS,
+    countTarget: 4294967295000,
 }];
+
+/**
+ * Converts a seconds amount to a list of elements.
+ * @param {number} seconds
+ * @returns {HTMLElement[]}
+ * @private @const @constant
+ */
+const displayMixed = (seconds) =>
+{
+    let remainder = seconds;
+    /** @type {HTMLElement[]} */
+    const elements = [];
+    for (const unit of MIXED_UNITS)
+    {
+        const isSmallestUnit = unit === MIXED_UNITS[MIXED_UNITS.length - 1];
+
+        let quotient = remainder / unit.seconds;
+        remainder %= unit.seconds;
+
+        /** @type {HTMLElement} */
+        let numEl;
+        if (isSmallestUnit)
+        {
+            numEl = document_createElement("small");
+        } else
+        {
+            numEl = document_createElement("span");
+        }
+
+        numEl.classList.add(CLASS_NAMES.COUNTER_HALF_SPACE);
+
+        if (seconds < unit.seconds)
+        {
+            numEl.classList.add(CLASS_NAMES.COUNTER_GREYED);
+        }
+
+        numEl.textContent = quotient.toFixed(0).padStart(unit.digits, "0");
+
+        let unitEl = document_createElement("small");
+        unitEl.classList.add(CLASS_NAMES.COUNTER_SPACE);
+        if (isSmallestUnit)
+        {
+            unitEl.classList.add(CLASS_NAMES.COUNTER_TINY);
+        }
+        unitEl.textContent = unit.unitName;
+
+        elements.push(numEl, unitEl);
+    }
+
+    return elements;
+}
 
 /**
  * Converts a seconds amount to a list of elements.
@@ -160,11 +233,11 @@ const displaySeconds = (seconds, invertGrey = false) =>
         dot.classList.add(CLASS_NAMES.COUNTER_GREYED);
     }
     dot.textContent = DECIMAL_SEPARATOR;
-    elements.push(dot);
 
     const fracEl = document_createElement("small");
     fracEl.textContent = frac;
-    elements.push(fracEl);
+
+    elements.push(dot, fracEl);
 
     return elements;
 }
@@ -176,16 +249,18 @@ const displaySeconds = (seconds, invertGrey = false) =>
  */
 const processCounter = (now, counter) =>
 {
-    const remaining = counter.count_target - now;
+    const remaining = counter.countTarget - now;
+    const remainingSecs = remaining / 1000;
 
-    switch (counter.display_mode)
+    switch (counter.displayMode)
     {
         case DisplayMode.MIXED:
-            // TODO
+            counter.elCounter.innerHTML = "";
+            counter.elCounter.append(...displayMixed(remainingSecs))
             break;
         default: {
-            counter.el_counter.innerHTML = "";
-            counter.el_counter.append(...displaySeconds(remaining / 1000, true))
+            counter.elCounter.innerHTML = "";
+            counter.elCounter.append(...displaySeconds(remainingSecs, true))
         }
     }
 }
@@ -215,22 +290,22 @@ const switchCounterModeCb = (counter) =>
 {
     return () =>
     {
-        switch (counter.display_mode)
+        switch (counter.displayMode)
         {
             case DisplayMode.SECONDS:
-                counter.display_mode = DisplayMode.MIXED;
-                counter.el_mode.textContent = "mixed mode";
+                counter.displayMode = DisplayMode.MIXED;
+                counter.elMode.textContent = "mixed mode";
                 break;
             default:
-                counter.display_mode = DisplayMode.SECONDS;
-                counter.el_mode.textContent = "seconds";
+                counter.displayMode = DisplayMode.SECONDS;
+                counter.elMode.textContent = "seconds";
         }
     }
 }
 
 for (const counter of COUNTERS)
 {
-    counter.el_switch.onclick = switchCounterModeCb(counter);
+    counter.elSwitch.onclick = switchCounterModeCb(counter);
 }
 
 thisRequestAnimationFrame(tick);
