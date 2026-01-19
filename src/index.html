@@ -14,11 +14,62 @@
         </style>
     </noscript>
     <style>
+        /*
+        Color scheme from
+        http://material-foundation.github.io/material-theme-builder/?primary=%239DFB00&custom%3ASigned=%23F74000&custom%3AUnsigned=%2305EEC1&colorMatch=true
+        */
+
+        :root {
+            color-scheme: light;
+            color: #000000;
+            background: #f6fce6;
+        }
+
+        h1,
+        a {
+            color: #305200;
+        }
+
+        section:first-child {
+            color: #ffffff;
+            background-color: #3f6900;
+        }
+
+        section:nth-child(2) {
+            color: #ffffff;
+            background-color: #ae2a00;
+        }
+
+        section:nth-child(3) {
+            color: #ffffff;
+            background-color: #006b56;
+        }
+
         @media (prefers-color-scheme: dark) {
             :root {
                 color-scheme: dark;
-                color: white;
-                background: black;
+                color: #ffffff;
+                background: #0f1508;
+            }
+
+            h1,
+            a {
+                color: #9dfb00;
+            }
+
+            section:first-child {
+                color: #000;
+                background-color: #9dfb00;
+            }
+
+            section:nth-child(2) {
+                color: #000;
+                background-color: #ffb68d;
+            }
+
+            section:nth-child(3) {
+                color: #000;
+                background-color: #b7ffd0;
             }
         }
 
@@ -58,7 +109,12 @@
             text-align: start;
             justify-content: center;
             border: 0.1em solid currentColor;
-            padding: 0.5em;
+            padding: 1.5em;
+            border-radius: 1em;
+        }
+
+        section :first-child {
+            margin-block-end: 0.5em;
         }
 
         section button {
@@ -120,7 +176,7 @@
 
         /* greyed */
         .u .g {
-            opacity: 0.3;
+            opacity: 0.5;
         }
 
         /* tiny */
@@ -161,7 +217,7 @@
                 <span>(click to change)</span>
                 <button type="button" id="e" aria-label="change format"></button>
             </p>
-            <time datetime="2038-01-19T03:14:08.000Z">@ 2038-01-09T03:14:08.000Z</time>
+            <time datetime="2038-01-19T03:14:08.000Z">@ 2038-01-19T03:14:08.000Z</time>
         </section>
         <section>
             <p>until unsigned 32-bit end</p>
