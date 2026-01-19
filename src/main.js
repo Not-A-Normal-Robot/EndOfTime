@@ -124,7 +124,7 @@ const displaySeconds = (seconds, invertGrey = false) =>
         } else
         {
             const index = int.length - exponent - 1;
-            span.innerText = int[index] || "ERROR"; // TODO: REMOVE if working
+            span.innerText = int[index];
         }
 
         elements.push(span);
@@ -156,9 +156,9 @@ const processCounter = (now, counter) =>
 
     switch (counter.mode)
     {
-        case CounterMode.MIXED: {
+        case CounterMode.MIXED:
             // TODO
-        }
+            break;
         default: {
             counter.el_counter.innerHTML = "";
             counter.el_counter.append(...displaySeconds(remaining / 1000, true))
@@ -192,10 +192,10 @@ const switchCounterModeCb = (counter) =>
     {
         switch (counter.mode)
         {
-            case CounterMode.SECONDS: {
+            case CounterMode.SECONDS:
                 counter.mode = CounterMode.MIXED;
                 counter.el_mode.textContent = "mixed mode";
-            }
+                break;
             default:
                 counter.mode = CounterMode.SECONDS;
                 counter.el_mode.textContent = "seconds";
