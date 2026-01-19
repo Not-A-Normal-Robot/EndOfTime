@@ -278,6 +278,10 @@ const tick = () =>
     EPOCH_SECS.innerHTML = "";
     EPOCH_SECS.append(...displaySeconds(now / 1000));
 
+    const isoDate = new Date(now).toISOString();
+    CUR_DATE.textContent = `@ ${isoDate}`;
+    CUR_DATE.dateTime = isoDate;
+
     thisRequestAnimationFrame(tick);
 }
 
