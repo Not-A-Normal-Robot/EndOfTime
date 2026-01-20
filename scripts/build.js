@@ -35,6 +35,8 @@ function compileJs(src, dest)
             js: [src],
         }).run((exitCode, stdout, stderr) =>
         {
+            console.log(stdout);
+            console.error(stderr);
             if (exitCode === 0)
             {
                 resolve();

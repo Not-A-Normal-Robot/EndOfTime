@@ -1,7 +1,5 @@
 // @ts-check
 
-import { differenceInYears } from "date-fns";
-
 /** @constant @private @enum {typeof DisplayMode[keyof typeof DisplayMode]} */
 const DisplayMode = {
     /** @constant @readonly @type {0} */ SECONDS: 0,
@@ -59,7 +57,7 @@ const DECIMAL_SEPARATOR = ".";
  * @type {MixedUnit[]}
  */
 const MIXED_UNITS = [
-    { unitName: "y", seconds: 365 * 86400, digits: 1 },
+    // Years is a special case and handled separately
     { unitName: "d", seconds: 86400, digits: 3 },
     { unitName: "h", seconds: 3600, digits: 2 },
     { unitName: "m", seconds: 60, digits: 2 },
@@ -141,57 +139,95 @@ const COUNTERS = [{
 }];
 
 /**
+ * Gets the number of years, between two dates,
+ * rounded down.
+ * 
+ * @param {Date} earlier Earlier date.
+ * @param {Date} later Later date.
+ */
+const yearsBetween = (earlier, later) =>
+{
+    let years = later.getUTCFullYear() - earlier.getUTCFullYear();
+
+    if (
+        later.getUTCMonth() < earlier.getUTCMonth() ||
+        (later.getUTCMonth() === earlier.getUTCMonth() && later.getUTCDate() < earlier.getUTCDate())
+    )
+    {
+        years--;
+    }
+
+    return years;
+}
+
+/**
  * Converts a seconds amount to a list of elements.
- * @param {number} start Current ms since Unix epoch.
- * @param {number} end Target ms since Unix epoch.
+ * @param {Date} start Current date.
+ * @param {Date} end Target date.
  * @returns {HTMLElement[]}
  * @private @constant
  */
 const displayMixed = (start, end) =>
 {
-    const years = differenceInYears(end, start);
-    alert(years);
-    //     let remainder = seconds;
-    //     /** @type {HTMLElement[]} */
-    //     const elements = [];
-    //     for (const unit of MIXED_UNITS)
-    //     {
-    //         const isSmallestUnit = unit === MIXED_UNITS[MIXED_UNITS.length - 1];
+    /** @type {HTMLElement[]} */
+    const elements = [];
 
-    //         let quotient = Math.floor(remainder / unit.seconds);
-    //         remainder -= quotient * unit.seconds;
+    const startYear = start.getUTCFullYear();
+    const years = yearsBetween(start, end);
+    const afterYears = start.setUTCFullYear(startYear + years);
 
-    //         /** @type {HTMLElement} */
-    //         let numEl;
-    //         if (isSmallestUnit)
-    //         {
-    //             numEl = document_createElement("small");
-    //         } else
-    //         {
-    //             numEl = document_createElement("span");
-    //         }
+    const yearEl = document_createElement("span");
+    yearEl.classList.add(CLASS_NAMES.COUNTER_HALF_SPACE);
+    if (years < 1)
+    {
+        yearEl.classList.add(CLASS_NAMES.COUNTER_GREYED);
+    }
+    yearEl.textContent = years.toFixed(0).padStart(1, "0");
 
-    //         numEl.classList.add(CLASS_NAMES.COUNTER_HALF_SPACE);
+    let yearUnitEl = document_createElement("small");
+    yearUnitEl.textContent = "y ";
 
-    //         if (seconds < unit.seconds)
-    //         {
-    //             numEl.classList.add(CLASS_NAMES.COUNTER_GREYED);
-    //         }
+    elements.push(yearEl, yearUnitEl);
 
-    //         numEl.textContent = quotient.toFixed(0).padStart(unit.digits, "0");
+    const totalSecs = end.getTime() / 1000;
+    let remainderSecs = (end.getTime() - afterYears) / 1000;
+    for (const unit of MIXED_UNITS)
+    {
+        const isSmallestUnit = unit === MIXED_UNITS[MIXED_UNITS.length - 1];
 
-    //         let unitEl = document_createElement("small");
-    //         if (isSmallestUnit)
-    //         {
-    //             unitEl.classList.add(CLASS_NAMES.COUNTER_TINY);
-    //         }
-    //         unitEl.textContent = unit.unitName + " ";
+        let quotient = Math.floor(remainderSecs / unit.seconds);
+        remainderSecs -= quotient * unit.seconds;
 
-    //         elements.push(numEl, unitEl);
-    //     }
+        /** @type {HTMLElement} */
+        let numEl;
+        if (isSmallestUnit)
+        {
+            numEl = document_createElement("small");
+        } else
+        {
+            numEl = document_createElement("span");
+        }
 
-    //     return elements;
-    throw "TODO";
+        numEl.classList.add(CLASS_NAMES.COUNTER_HALF_SPACE);
+
+        if (totalSecs < unit.seconds)
+        {
+            numEl.classList.add(CLASS_NAMES.COUNTER_GREYED);
+        }
+
+        numEl.textContent = quotient.toFixed(0).padStart(unit.digits, "0");
+
+        let unitEl = document_createElement("small");
+        if (isSmallestUnit)
+        {
+            unitEl.classList.add(CLASS_NAMES.COUNTER_TINY);
+        }
+        unitEl.textContent = unit.unitName + " ";
+
+        elements.push(numEl, unitEl);
+    }
+
+    return elements;
 }
 
 /**
@@ -255,7 +291,7 @@ const processCounter = (now, counter) =>
     {
         case DisplayMode.MIXED:
             counter.elCounter.innerHTML = "";
-            counter.elCounter.append(...displayMixed(now, counter.countTarget))
+            counter.elCounter.append(...displayMixed(new Date(now), new Date(counter.countTarget)))
             break;
         default: {
             counter.elCounter.innerHTML = "";
