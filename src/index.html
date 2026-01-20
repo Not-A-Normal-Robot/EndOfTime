@@ -124,8 +124,9 @@
             border-radius: 1em;
         }
 
-        section :first-child {
-            margin-block-end: 0.5em;
+        section h2 {
+            font: 400 1rem monospace;
+            margin: 0 0 0.5em 0;
         }
 
         section button {
@@ -216,12 +217,12 @@
 
     <main>
         <section>
-            <p>secs since epoch</p>
+            <h2>secs since epoch</h2>
             <p class="u" id="a">000000000.000</p>
             <time id="b" datetime="1970-01-01T00:00:00.000Z">@ 1970-01-01T00:00:00.000Z</time>
         </section>
         <section>
-            <p>until signed 32-bit end:</p>
+            <h2>until signed 32-bit end:</h2>
             <p class="u" id="c">2147483647.000</p>
             <p>
                 <span id="d">seconds</span>
@@ -231,7 +232,7 @@
             <time datetime="2038-01-19T03:14:08.000Z">@ 2038-01-19T03:14:08.000Z</time>
         </section>
         <section>
-            <p>until unsigned 32-bit end</p>
+            <h2>until unsigned 32-bit end</h2>
             <p class="u" id="f">4294967295.000</p>
             <p>
                 <span id="g">seconds</span>
