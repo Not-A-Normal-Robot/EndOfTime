@@ -16,6 +16,9 @@
     <meta property="og:description" content="View the amount of time remaining until the 32-bit Unix overflow!">
     <meta name="keywords" content="2038,2106,Unix,time,epoch,overflow,32-bit">
 
+    <meta name="theme-color" content="#9dfb00" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#305200" media="(prefers-color-scheme: light)">
+
     <noscript>
         <style>
             /* hide-noscript */
@@ -133,7 +136,8 @@
             position: absolute;
             inset: 0;
             z-index: 1;
-            opacity: 0;
+            background-color: transparent;
+            border: 0 none transparent;
             cursor: pointer;
         }
 
@@ -227,7 +231,7 @@
             <p>
                 <span id="d">seconds</span>
                 <span>(click to change)</span>
-                <button type="button" id="e" aria-label="change format"></button>
+                <button type="button" id="e" aria-label="change format" title="change format"></button>
             </p>
             <time datetime="2038-01-19T03:14:08.000Z">@ 2038-01-19T03:14:08.000Z</time>
         </section>
@@ -237,7 +241,7 @@
             <p>
                 <span id="g">seconds</span>
                 <span>(click to change)</span>
-                <button type="button" id="h" aria-label="change format"></button>
+                <button type="button" id="h" aria-label="change format" title="change format"></button>
             </p>
             <time datetime="2106-02-07T06:28:16.000Z">@ 2106-02-07T06:28:16.000Z</time>
         </section>
