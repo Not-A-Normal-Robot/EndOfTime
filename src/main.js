@@ -1,13 +1,14 @@
 // @ts-check
 
-/** @const @private */
-const DisplayMode = {
-    /** @const @constant @readonly @type {0} */ SECONDS: 0,
-    /** @const @constant @readonly @type {1} */ MIXED: 1,
-}
-/** @typedef {typeof DisplayMode[keyof typeof DisplayMode]} DisplayMode */
+import { differenceInYears } from "date-fns";
 
-/** @private @const @constant */
+/** @constant @private @enum {typeof DisplayMode[keyof typeof DisplayMode]} */
+const DisplayMode = {
+    /** @constant @readonly @type {0} */ SECONDS: 0,
+    /** @constant @readonly @type {1} */ MIXED: 1,
+}
+
+/** @private @constant */
 const MIN_DIGITS = 10;
 
 /**
@@ -27,7 +28,6 @@ const MIN_DIGITS = 10;
  */
 
 /**
- * @const
  * @constant
  * @readonly
  * @private
@@ -43,7 +43,7 @@ const IDS = {
     UNSIGNED_SWITCH: "h",
 };
 
-/** @const @constant @readonly @private */
+/** @constant @readonly @private */
 const CLASS_NAMES = {
     COUNTER_HALF_SPACE: "h",
     COUNTER_SPACE: "s",
@@ -51,15 +51,15 @@ const CLASS_NAMES = {
     COUNTER_TINY: "t",
 }
 
-/** @const @constant @readonly @private */
+/** @constant @readonly @private */
 const DECIMAL_SEPARATOR = ".";
 
 /**
- * @const @constant @readonly @private
+ * @constant @readonly @private
  * @type {MixedUnit[]}
  */
 const MIXED_UNITS = [
-    { unitName: "y", seconds: 365.2425 * 86400, digits: 1 },
+    { unitName: "y", seconds: 365 * 86400, digits: 1 },
     { unitName: "d", seconds: 86400, digits: 3 },
     { unitName: "h", seconds: 3600, digits: 2 },
     { unitName: "m", seconds: 60, digits: 2 },
@@ -69,20 +69,20 @@ const MIXED_UNITS = [
 
 /**
  * Wrapper for document that minifies better.
- * @const @constant @readonly @private
+ * @constant @readonly @private
  */
 const thisDocument = document;
 
 /**
  * Wrapper for document.createElement that minifies better.
- * @const @constant @readonly @private
+ * @constant @readonly @private
  * @param {FrameRequestCallback} x
  */
 const thisRequestAnimationFrame = requestAnimationFrame.bind(window);
 
 /**
  * Wrapper for document.createElement that minifies better.
- * @private @const @constant
+ * @private @constant
  * @param {string} x
  * @returns {HTMLElement}
  */
@@ -90,7 +90,6 @@ const document_createElement = (x) => thisDocument.createElement(x);
 
 /**
  * @private
- * @const
  * @constant
  * @type {[
  * HTMLParagraphElement,
@@ -124,7 +123,7 @@ const [
 ].map(id => thisDocument.getElementById(id)));
 
 /**
- * @private @const @constant
+ * @private @constant
  * @type {CounterWrapper[]}
  */
 const COUNTERS = [{
@@ -143,52 +142,56 @@ const COUNTERS = [{
 
 /**
  * Converts a seconds amount to a list of elements.
- * @param {number} seconds
+ * @param {number} start Current ms since Unix epoch.
+ * @param {number} end Target ms since Unix epoch.
  * @returns {HTMLElement[]}
- * @private @const @constant
+ * @private @constant
  */
-const displayMixed = (seconds) =>
+const displayMixed = (start, end) =>
 {
-    let remainder = seconds;
-    /** @type {HTMLElement[]} */
-    const elements = [];
-    for (const unit of MIXED_UNITS)
-    {
-        const isSmallestUnit = unit === MIXED_UNITS[MIXED_UNITS.length - 1];
+    const years = differenceInYears(end, start);
+    alert(years);
+    //     let remainder = seconds;
+    //     /** @type {HTMLElement[]} */
+    //     const elements = [];
+    //     for (const unit of MIXED_UNITS)
+    //     {
+    //         const isSmallestUnit = unit === MIXED_UNITS[MIXED_UNITS.length - 1];
 
-        let quotient = Math.floor(remainder / unit.seconds);
-        remainder -= quotient * unit.seconds;
+    //         let quotient = Math.floor(remainder / unit.seconds);
+    //         remainder -= quotient * unit.seconds;
 
-        /** @type {HTMLElement} */
-        let numEl;
-        if (isSmallestUnit)
-        {
-            numEl = document_createElement("small");
-        } else
-        {
-            numEl = document_createElement("span");
-        }
+    //         /** @type {HTMLElement} */
+    //         let numEl;
+    //         if (isSmallestUnit)
+    //         {
+    //             numEl = document_createElement("small");
+    //         } else
+    //         {
+    //             numEl = document_createElement("span");
+    //         }
 
-        numEl.classList.add(CLASS_NAMES.COUNTER_HALF_SPACE);
+    //         numEl.classList.add(CLASS_NAMES.COUNTER_HALF_SPACE);
 
-        if (seconds < unit.seconds)
-        {
-            numEl.classList.add(CLASS_NAMES.COUNTER_GREYED);
-        }
+    //         if (seconds < unit.seconds)
+    //         {
+    //             numEl.classList.add(CLASS_NAMES.COUNTER_GREYED);
+    //         }
 
-        numEl.textContent = quotient.toFixed(0).padStart(unit.digits, "0");
+    //         numEl.textContent = quotient.toFixed(0).padStart(unit.digits, "0");
 
-        let unitEl = document_createElement("small");
-        if (isSmallestUnit)
-        {
-            unitEl.classList.add(CLASS_NAMES.COUNTER_TINY);
-        }
-        unitEl.textContent = unit.unitName + " ";
+    //         let unitEl = document_createElement("small");
+    //         if (isSmallestUnit)
+    //         {
+    //             unitEl.classList.add(CLASS_NAMES.COUNTER_TINY);
+    //         }
+    //         unitEl.textContent = unit.unitName + " ";
 
-        elements.push(numEl, unitEl);
-    }
+    //         elements.push(numEl, unitEl);
+    //     }
 
-    return elements;
+    //     return elements;
+    throw "TODO";
 }
 
 /**
@@ -196,7 +199,7 @@ const displayMixed = (seconds) =>
  * @param {number} seconds
  * @param {boolean} invertGrey
  * @returns {HTMLElement[]}
- * @private @const @constant
+ * @private @constant
  */
 const displaySeconds = (seconds, invertGrey = false) =>
 {
@@ -244,27 +247,24 @@ const displaySeconds = (seconds, invertGrey = false) =>
 /**
  * @param {number} now Output of Date.now()
  * @param {CounterWrapper} counter
- * @private @const @constant
+ * @private @constant
  */
 const processCounter = (now, counter) =>
 {
-    const remaining = counter.countTarget - now;
-    const remainingSecs = remaining / 1000;
-
     switch (counter.displayMode)
     {
         case DisplayMode.MIXED:
             counter.elCounter.innerHTML = "";
-            counter.elCounter.append(...displayMixed(remainingSecs))
+            counter.elCounter.append(...displayMixed(now, counter.countTarget))
             break;
         default: {
             counter.elCounter.innerHTML = "";
-            counter.elCounter.append(...displaySeconds(remainingSecs, true))
+            counter.elCounter.append(...displaySeconds((counter.countTarget - now) / 1000, true))
         }
     }
 }
 
-/** @private @const @constant */
+/** @private @constant */
 const tick = () =>
 {
     let now = Date.now();
@@ -287,7 +287,7 @@ const tick = () =>
 /**
  * @param {CounterWrapper} counter
  * @returns {function(): void}
- * @private @const @constant
+ * @private @constant
  */
 const switchCounterModeCb = (counter) =>
 {

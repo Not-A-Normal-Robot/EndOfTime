@@ -2,11 +2,9 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
 import minifyHtml from "@minify-html/node";
+import { compiler } from "google-closure-compiler";
 
-const EXEC_ASYNC = promisify(exec);
 const SRC_DIR = "./src";
 const DIST_DIR = "./dist";
 const INDEX_HTML = "index.html";
@@ -20,14 +18,32 @@ await fs.mkdir(DIST_DIR, { recursive: true });
 /**
  * @param {string} src
  * @param {string} dest
+ * @returns {Promise<void>}
  */
-async function compileJs(src, dest)
+function compileJs(src, dest)
 {
     if (path.extname(src) != ".js")
     {
-        return;
+        return Promise.resolve();
     }
-    await EXEC_ASYNC(`google-closure-compiler --compilation_level ADVANCED_OPTIMIZATIONS --js=${src} --js_output_file=${dest}`);
+
+    return new Promise((resolve, reject) =>
+    {
+        new compiler({
+            compilation_level: "ADVANCED_OPTIMIZATIONS",
+            js_output_file: dest,
+            js: [src],
+        }).run((exitCode, stdout, stderr) =>
+        {
+            if (exitCode === 0)
+            {
+                resolve();
+            } else
+            {
+                reject();
+            }
+        });
+    });
 }
 
 let promises =
