@@ -54,7 +54,7 @@ const DECIMAL_SEPARATOR = ".";
 
 /**
  * @constant @readonly @private
- * @type {MixedUnit[]}
+ * @type {!Array<MixedUnit>}
  */
 const MIXED_UNITS = [
     // Years is a special case and handled separately
@@ -122,7 +122,7 @@ const [
 
 /**
  * @private @constant
- * @type {CounterWrapper[]}
+ * @type {!Array<CounterWrapper>}
  */
 const COUNTERS = [{
     elCounter: SIGNED_COUNTER,
@@ -164,12 +164,12 @@ const yearsBetween = (earlier, later) =>
  * Converts a seconds amount to a list of elements.
  * @param {Date} start Current date.
  * @param {Date} end Target date.
- * @returns {HTMLElement[]}
+ * @returns {Array<HTMLElement>}
  * @private @constant
  */
 const displayMixed = (start, end) =>
 {
-    /** @type {HTMLElement[]} */
+    /** @type {Array<HTMLElement>} */
     const elements = [];
 
     const startYear = start.getUTCFullYear();
@@ -234,7 +234,7 @@ const displayMixed = (start, end) =>
  * Converts a seconds amount to a list of elements.
  * @param {number} seconds
  * @param {boolean} invertGrey
- * @returns {HTMLElement[]}
+ * @returns {Array<HTMLElement>}
  * @private @constant
  */
 const displaySeconds = (seconds, invertGrey = false) =>
@@ -242,7 +242,7 @@ const displaySeconds = (seconds, invertGrey = false) =>
     const numSecs = seconds.toFixed(3);
     const [int, frac] = numSecs.split(".", 2);
 
-    /** @type {HTMLElement[]} */
+    /** @type {Array<HTMLElement>} */
     const elements = [];
 
     for (let exponent = Math.max(int.length, MIN_DIGITS) - 1; exponent >= 0; exponent--)
@@ -290,12 +290,10 @@ const processCounter = (now, counter) =>
     switch (counter.displayMode)
     {
         case DisplayMode.MIXED:
-            counter.elCounter.innerHTML = "";
-            counter.elCounter.append(...displayMixed(new Date(now), new Date(counter.countTarget)))
+            counter.elCounter.replaceChildren(...displayMixed(new Date(now), new Date(counter.countTarget)))
             break;
         default: {
-            counter.elCounter.innerHTML = "";
-            counter.elCounter.append(...displaySeconds((counter.countTarget - now) / 1000, true))
+            counter.elCounter.replaceChildren(...displaySeconds((counter.countTarget - now) / 1000, true))
         }
     }
 }
