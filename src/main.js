@@ -37,7 +37,7 @@ const IDS = {
     SIGNED_MODE: "d",
     SIGNED_SWITCH: "e",
     UNSIGNED_COUNTER: "f",
-    UNGISNED_MODE: "g",
+    UNSIGNED_MODE: "g",
     UNSIGNED_SWITCH: "h",
 };
 
@@ -116,7 +116,7 @@ const [
     IDS.SIGNED_MODE,
     IDS.SIGNED_SWITCH,
     IDS.UNSIGNED_COUNTER,
-    IDS.UNGISNED_MODE,
+    IDS.UNSIGNED_MODE,
     IDS.UNSIGNED_SWITCH,
 ].map(id => thisDocument.getElementById(id)));
 
