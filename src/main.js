@@ -15,6 +15,7 @@ const MIN_DIGITS = 10;
  * @property {HTMLSpanElement} elMode The span showing the current mode.
  * @property {HTMLButtonElement} elSwitch The button to switch between modes.
  * @property {DisplayMode} displayMode The current mode the counter is in.
+ * @property {boolean} fullRefresh Whether or not to fully rebuild the counter display this frame.
  * @property {number} countTarget The end target to get subtracted from, in Unix milliseconds.
  */
 
@@ -129,12 +130,14 @@ const COUNTERS = [{
     elMode: SIGNED_MODE,
     elSwitch: SIGNED_SWITCH,
     displayMode: DisplayMode.SECONDS,
+    fullRefresh: true,
     countTarget: 2147483647000,
 }, {
     elCounter: UNSIGNED_COUNTER,
     elMode: UNSIGNED_MODE,
     elSwitch: UNSIGNED_SWITCH,
     displayMode: DisplayMode.SECONDS,
+    fullRefresh: true,
     countTarget: 4294967295000,
 }];
 
@@ -162,12 +165,14 @@ const yearsBetween = (earlier, later) =>
 
 /**
  * Converts a seconds amount to a list of elements.
+ * Creates the full display.
+ * 
  * @param {Date} start Current date.
  * @param {Date} end Target date.
  * @returns {Array<HTMLElement>}
  * @private @constant
  */
-const displayMixed = (start, end) =>
+const displayMixedFull = (start, end) =>
 {
     /** @type {Array<HTMLElement>} */
     const elements = [];
@@ -195,7 +200,7 @@ const displayMixed = (start, end) =>
     {
         const isSmallestUnit = unit === MIXED_UNITS[MIXED_UNITS.length - 1];
 
-        let quotient = Math.floor(remainderSecs / unit.seconds);
+        const quotient = Math.floor(remainderSecs / unit.seconds);
         remainderSecs -= quotient * unit.seconds;
 
         /** @type {HTMLElement} */
@@ -231,13 +236,61 @@ const displayMixed = (start, end) =>
 }
 
 /**
+ * Updates an existing mixed mode display.
+ * 
+ * @param {HTMLCollection} existing Existing array of elements.
+ * @param {Date} start Current date.
+ * @param {Date} end Target date.
+ * @private @constant
+ */
+const displayMixedUpdate = (existing, start, end) =>
+{
+    const startYear = start.getUTCFullYear();
+    const years = yearsBetween(start, end);
+    const afterYears = start.setUTCFullYear(startYear + years);
+
+    const yearsString = years.toString();
+
+    if (existing[0].textContent !== yearsString)
+        existing[0].textContent = yearsString;
+
+    const totalSecs = end.getTime() / 1000;
+    let remainderSecs = (end.getTime() - afterYears) / 1000;
+
+    for (let i = 0; i < MIXED_UNITS.length; i++)
+    {
+        const unit = MIXED_UNITS[i];
+
+        const quotient = Math.floor(remainderSecs / unit.seconds);
+        remainderSecs -= quotient * unit.seconds;
+
+        const el_idx = i * 2 + 2;
+        const element = existing[el_idx];
+
+        if (totalSecs < unit.seconds)
+        {
+            element.classList.add(CLASS_NAMES.COUNTER_GREYED);
+        } else
+        {
+            element.classList.remove(CLASS_NAMES.COUNTER_GREYED);
+        }
+
+        const newText = quotient.toFixed(0).padStart(unit.digits, "0");
+        if (element.textContent !== newText)
+            element.textContent = newText;
+    }
+}
+
+/**
  * Converts a seconds amount to a list of elements.
+ * Creates the full display.
+ * 
  * @param {number} seconds
  * @param {boolean} invertGrey
  * @returns {Array<HTMLElement>}
  * @private @constant
  */
-const displaySeconds = (seconds, invertGrey = false) =>
+const displaySecondsFull = (seconds, invertGrey = false) =>
 {
     const numSecs = seconds.toFixed(3);
     const [int, frac] = numSecs.split(".", 2);
@@ -290,12 +343,19 @@ const processCounter = (now, counter) =>
     switch (counter.displayMode)
     {
         case DisplayMode.MIXED:
-            counter.elCounter.replaceChildren(...displayMixed(new Date(now), new Date(counter.countTarget)))
+            if (counter.fullRefresh)
+            {
+                counter.elCounter.replaceChildren(...displayMixedFull(new Date(now), new Date(counter.countTarget)));
+            } else
+            {
+                displayMixedUpdate(counter.elCounter.children, new Date(now), new Date(counter.countTarget));
+            }
             break;
-        default: {
-            counter.elCounter.replaceChildren(...displaySeconds((counter.countTarget - now) / 1000, true))
-        }
+        default:
+            counter.elCounter.replaceChildren(...displaySecondsFull((counter.countTarget - now) / 1000, true));
     }
+
+    counter.fullRefresh = false;
 }
 
 /** @private @constant */
@@ -309,7 +369,7 @@ const tick = () =>
     }
 
     EPOCH_SECS.innerHTML = "";
-    EPOCH_SECS.append(...displaySeconds(now / 1000));
+    EPOCH_SECS.append(...displaySecondsFull(now / 1000));
 
     const isoDate = new Date(now).toISOString();
     CUR_DATE.textContent = `@ ${isoDate}`;
@@ -337,6 +397,7 @@ const switchCounterModeCb = (counter) =>
                 counter.displayMode = DisplayMode.SECONDS;
                 counter.elMode.textContent = "seconds";
         }
+        counter.fullRefresh = true;
     }
 }
 
