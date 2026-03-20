@@ -6,8 +6,11 @@ const DisplayMode = {
     /** @constant @readonly @type {1} */ MIXED: 1,
 }
 
-/** @private @constant */
-const MIN_DIGITS = 10;
+/**
+ * @private @constant
+ * How high the maximum exponent of the seconds counter is.
+ */
+const MAX_EXPONENT = 9;
 
 /**
  * @typedef {Object} CounterWrapper A collection of variables for the counters.
@@ -298,7 +301,7 @@ const displaySecondsFull = (seconds, invertGrey = false) =>
     /** @type {Array<HTMLElement>} */
     const elements = [];
 
-    for (let exponent = Math.max(int.length, MIN_DIGITS) - 1; exponent >= 0; exponent--)
+    for (let exponent = MAX_EXPONENT; exponent >= 0; exponent--)
     {
         const span = document_createElement("span");
         if (exponent % 3 === 0 && exponent !== 0)
@@ -334,6 +337,60 @@ const displaySecondsFull = (seconds, invertGrey = false) =>
 }
 
 /**
+ * Converts a seconds amount to a list of elements.
+ * Creates the full display.
+ * 
+ * @param {HTMLCollection} existing Existing array of elements.
+ * @param {number} seconds
+ * @param {boolean} invertGrey
+ * @private @constant
+ */
+const displaySecondsUpdate = (existing, seconds, invertGrey = false) =>
+{
+    const numSecs = seconds.toFixed(3);
+    const [int, frac] = numSecs.split(".", 2);
+
+    for (let i = 0; i <= MAX_EXPONENT; i++)
+    {
+        const exponent = MAX_EXPONENT - i;
+        const span = existing[i];
+
+        if (exponent >= int.length)
+        {
+            if (!span.classList.contains(CLASS_NAMES.COUNTER_GREYED))
+            {
+                span.classList.add(CLASS_NAMES.COUNTER_GREYED)
+            }
+
+            if (span.textContent !== "0")
+            {
+                span.textContent = "0"
+            }
+        } else
+        {
+            const index = int.length - exponent - 1;
+            const text = int[index];
+
+            if (span.textContent !== text)
+                span.textContent = text;
+        }
+    }
+
+    const dotEl = existing[existing.length - 2];
+    if (seconds % 1 > 0.5 !== invertGrey)
+    {
+        dotEl.classList.add(CLASS_NAMES.COUNTER_GREYED);
+    } else
+    {
+        dotEl.classList.remove(CLASS_NAMES.COUNTER_GREYED);
+    }
+
+
+    const fracEl = existing[existing.length - 1];
+    fracEl.textContent = frac.toString();
+}
+
+/**
  * @param {number} now Output of Date.now()
  * @param {CounterWrapper} counter
  * @private @constant
@@ -344,15 +401,16 @@ const processCounter = (now, counter) =>
     {
         case DisplayMode.MIXED:
             if (counter.fullRefresh)
-            {
                 counter.elCounter.replaceChildren(...displayMixedFull(new Date(now), new Date(counter.countTarget)));
-            } else
-            {
+            else
                 displayMixedUpdate(counter.elCounter.children, new Date(now), new Date(counter.countTarget));
-            }
             break;
         default:
-            counter.elCounter.replaceChildren(...displaySecondsFull((counter.countTarget - now) / 1000, true));
+            if (counter.fullRefresh)
+                counter.elCounter.replaceChildren(...displaySecondsFull((counter.countTarget - now) / 1000, true));
+            else
+                displaySecondsUpdate(counter.elCounter.children, (counter.countTarget - now) / 1000, true)
+
     }
 
     counter.fullRefresh = false;
@@ -368,8 +426,7 @@ const tick = () =>
         processCounter(now, counter);
     }
 
-    EPOCH_SECS.innerHTML = "";
-    EPOCH_SECS.append(...displaySecondsFull(now / 1000));
+    displaySecondsUpdate(EPOCH_SECS.children, now / 1000);
 
     const isoDate = new Date(now).toISOString();
     CUR_DATE.textContent = `@ ${isoDate}`;
